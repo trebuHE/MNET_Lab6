@@ -6,11 +6,23 @@
 % equal rho_i and r_i_plus_1.
 %
 function val = numflux(rho_i, rho_i_plus_1)
-
+  
   global rho_max;
+  rho_crit = rho_max / 2;
 
-  %
-  % place your code here
-  %
+  if (rho_i <= rho_crit && rho_i_plus_1 <= rho_crit)
+
+      val = flux(rho_i);
+
+  elseif (rho_i <= rho_crit && rho_i_plus_1 > rho_crit)
+
+      val = min(flux(rho_i), flux(rho_i_plus_1));
+
+  elseif (rho_i > rho_crit && rho_i_plus_1 <= rho_crit)
+
+      val = flux(rho_crit);
+  else
+      val = flux(rho_i_plus_1);
+  end
 
 end
