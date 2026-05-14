@@ -5,8 +5,8 @@
 
 clear all
 
-global rho_max;
 global u_max;
+global rho_max;
 
 %
 % problem parameters
@@ -14,6 +14,8 @@ global u_max;
 rho_max=200.0
 u_max=60.0
 rho_L=200.0
+
+rho_R = 20
 
 %
 % we will consider x in range [-2,2], and t in range [0,2]
@@ -40,13 +42,20 @@ rho = zeros(Nt,Nx);
 % put your initial conditions here
 %
 
+for i = 1:Nx
+    if xs(i) <= 0
+        rho(1, i) = rho_max;
+    else
+        rho(1, i) = rho_R;
+    end
+end
 
 
 %
 % a few sample trajectories 
 %
 
-traj(1,:) = [-1.0 -1.0 -1.0];
+traj(1,:) = [-1.5 -1.0 -0.5];
 Ntraj = length(traj);
 
 for n=2:Nt
@@ -89,12 +98,28 @@ for n=2:Nt
   %
   % compute the sample trajectories, fix the code below!
   %
-  
-%  for j=1:Ntraj
-%    traj(n,j) = interpolate_rho(traj(n-1,j), rho(n-1,:), xs);
-%  end
+
+  for j=1:Ntraj
+    % find local density at car position using interpolation 
+    rho_at_car = interpolate_rho(traj(n-1,j), rho(n-1,:), xs);
+    
+    % Euler forward step 
+    speed = u_max * (1 - rho_at_car / rho_max);
+    traj(n,j) = traj(n-1,j) + delta_t * speed;
+  end
 
 end
 
+figure(1);
+[XX, YY] = meshgrid(xs, ts);
+pcolor(XX, YY, rho);
+shading('interp');
+colorbar;
+xlabel('Position x [km]');
+ylabel('Time t [h]');
+title('Traffic Density Evolution');
 
+hold on
+plot(traj, ts, 'w', 'LineWidth', 1.5);
+hold off
 
