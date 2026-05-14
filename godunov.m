@@ -42,14 +42,7 @@ rho = zeros(Nt,Nx);
 % put your initial conditions here
 %
 
-for i = 1:Nx
-    if xs(i) <= 0
-        rho(1, i) = rho_max;
-    else
-        rho(1, i) = rho_R;
-    end
-end
-
+rho(1, :) = rho_max / 2;
 
 %
 % a few sample trajectories 
@@ -62,7 +55,7 @@ for n=2:Nt
     
   % incoming flux at x = XL  
   flux_minus = numflux(rho(n-1,1), rho(n-1,1));  
-    
+     
   for i=1:Nx
 
     % compute discrete fluxes F(xi-1/2) and F(xi+1/2)
@@ -82,8 +75,13 @@ for n=2:Nt
     %
     % add code to model periodic red light
     %
-    
 
+    is_red = (ts(n) >= 0 && ts(n) <= 1/60) || ...
+           (ts(n) >= 2/60 && ts(n) <= 3/60);
+    
+    if (is_red && abs(xs(i)) < 1e-9)
+        flux_plus = 0;
+    end
 
     %
     % compute the density
